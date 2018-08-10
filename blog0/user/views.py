@@ -6,6 +6,7 @@ import jwt, datetime
 import bcrypt
 from django.conf import settings
 
+AUTH_EXPIRE = 60 * 60 * 5
 # Create your views here.
 
 def homepage(request):
@@ -15,7 +16,7 @@ def homepage(request):
 def gen_token(user_id):
     ret = jwt.encode({
         'user_id': user_id,
-        'timestamp': int(datetime.datetime.now().timestamp())
+        'exp': int(datetime.datetime.now().timestamp()) + AUTH_EXPIRE
     }, settings.SECRET_KEY, 'HS256')
 
     return ret.decode()
@@ -79,7 +80,7 @@ def login(request):
         print(e)
         return HttpResponseBadRequest()
 
-AUTH_EXPIRE = 60 * 60 * 5
+
 
 
 def authenticate(view):
@@ -91,10 +92,10 @@ def authenticate(view):
             payload = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
             #  取出payload  是 一个header中的token
             print(payload)
-            print(payload['timestamp'])
+            print(payload['exp'])
             # 考虑 过期时间
-            if (datetime.datetime.now().timestamp() - payload['timestamp']) > AUTH_EXPIRE:
-                return HttpResponse(status=401)
+            #if (datetime.datetime.now().timestamp() - payload['timestamp']) > AUTH_EXPIRE:
+            #    return HttpResponse(status=401)
             # 到这里，说明用户已经算是个合法用户
             user_id = payload['user_id']
 
@@ -107,7 +108,7 @@ def authenticate(view):
 
             #return HttpResponse('2oo!')
         except Exception as e:
-            print(e)
+            print(e, '!!!!!!!!!!!!!!!')
             return HttpResponse(status=401)
     return wrapper
 
