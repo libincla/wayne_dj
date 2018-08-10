@@ -104,12 +104,15 @@ def authenticate(view):
 
             request.user = user
 
-            return view(request)
+
 
             #return HttpResponse('2oo!')
         except Exception as e:
             print(e, '!!!!!!!!!!!!!!!')
             return HttpResponse(status=401)
+
+        return view(request)
+    
     return wrapper
 
 
